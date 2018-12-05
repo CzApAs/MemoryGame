@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Memory Game</string>
+    <string name="title_MainActivity">Memory Game</string>
+    <string name="title_begin_3x2_game">Start Game</string>
+</resources>
