@@ -117,12 +117,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else
         {
-            Context context = getApplicationContext();
-            CharSequence text = "Not all images had their photo taken.";
-            int duration = Toast.LENGTH_SHORT;
-
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
+            displayNotAllImagesAreSetToast();
         }
     }
 
@@ -136,6 +131,16 @@ public class MainActivity extends AppCompatActivity {
         {
             return false;
         }
+    }
+
+    public void displayNotAllImagesAreSetToast()
+    {
+        Context context = getApplicationContext();
+        CharSequence text = "Not all images had their photo taken.";
+        int duration = Toast.LENGTH_SHORT;
+
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
     }
 
 }
