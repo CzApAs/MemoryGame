@@ -1,5 +1,6 @@
 package com.example.memorygame;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.Image;
@@ -7,9 +8,15 @@ import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
+    public static final String EXTRA_BITMAP_1 = "com.example.myfirstapp.BITMAP_1";
+    public static final String EXTRA_BITMAP_2 = "com.example.myfirstapp.BITMAP_2";
+    public static final String EXTRA_BITMAP_3 = "com.example.myfirstapp.BITMAP_3";
+    public static final String EXTRA_BITMAP_4 = "com.example.myfirstapp.BITMAP_4";
     static final int REQUEST_IMAGE_CAPTURE_1 = 1;
     static final int REQUEST_IMAGE_CAPTURE_2 = 2;
     static final int REQUEST_IMAGE_CAPTURE_3 = 3;
@@ -31,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
         secondImageButton = (ImageButton) findViewById(R.id.secondImage);
         thirdImageButton = (ImageButton) findViewById(R.id.thirdImage);
         fourthImageButton = (ImageButton) findViewById(R.id.fourthImage);
+
+        Button startGameButton = (Button) findViewById(R.id.button_Start_Game);
 
     }
 
@@ -96,5 +105,37 @@ public class MainActivity extends AppCompatActivity {
         dispatchTakePictureIntent(REQUEST_IMAGE_CAPTURE_4);
     }
 
+    public void startGame(View view)
+    {
+        if(allImagesAreSet()) {
+            Intent intent = new Intent(this, GameActivity.class);
+            intent.putExtra(EXTRA_BITMAP_1, firstImageBitmap);
+            intent.putExtra(EXTRA_BITMAP_2, secondImageBitmap);
+            intent.putExtra(EXTRA_BITMAP_3, thirdImageBitmap);
+            intent.putExtra(EXTRA_BITMAP_4, fourthImageBitmap);
+            startActivity(intent);
+        }
+        else
+        {
+            Context context = getApplicationContext();
+            CharSequence text = "Not all images had their photo taken.";
+            int duration = Toast.LENGTH_SHORT;
+
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+        }
+    }
+
+    public boolean allImagesAreSet()
+    {
+        if(firstImageBitmap!=null && secondImageBitmap!=null && thirdImageBitmap!=null && fourthImageBitmap!=null)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
 }
