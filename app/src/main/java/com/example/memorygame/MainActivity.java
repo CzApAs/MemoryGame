@@ -29,18 +29,24 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton secondImageButton;
     private ImageButton thirdImageButton;
     private ImageButton fourthImageButton;
+    Intent intent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        instantiateValues();
+    }
+
+    protected void instantiateValues()
+    {
         firstImageButton = (ImageButton) findViewById(R.id.firstImage);
         secondImageButton = (ImageButton) findViewById(R.id.secondImage);
         thirdImageButton = (ImageButton) findViewById(R.id.thirdImage);
         fourthImageButton = (ImageButton) findViewById(R.id.fourthImage);
 
         Button startGameButton = (Button) findViewById(R.id.button_Start_Game);
-
     }
 
     private void dispatchTakePictureIntent(int requestCode) {
@@ -108,11 +114,7 @@ public class MainActivity extends AppCompatActivity {
     public void startGame(View view)
     {
         if(allImagesAreSet()) {
-            Intent intent = new Intent(this, GameActivity.class);
-            intent.putExtra(EXTRA_BITMAP_1, firstImageBitmap);
-            intent.putExtra(EXTRA_BITMAP_2, secondImageBitmap);
-            intent.putExtra(EXTRA_BITMAP_3, thirdImageBitmap);
-            intent.putExtra(EXTRA_BITMAP_4, fourthImageBitmap);
+            setupIntentWithBitmaps();
             startActivity(intent);
         }
         else
@@ -133,10 +135,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void setupIntentWithBitmaps()
+    {
+        intent = new Intent(this, GameActivity.class);
+        intent.putExtra(EXTRA_BITMAP_1, firstImageBitmap);
+        intent.putExtra(EXTRA_BITMAP_2, secondImageBitmap);
+        intent.putExtra(EXTRA_BITMAP_3, thirdImageBitmap);
+        intent.putExtra(EXTRA_BITMAP_4, fourthImageBitmap);
+    }
+
     public void displayNotAllImagesAreSetToast()
     {
         Context context = getApplicationContext();
-        CharSequence text = "Not all images had their photo taken.";
+        CharSequence text = "Not all images have a photo thumbnail attached.";
         int duration = Toast.LENGTH_SHORT;
 
         Toast toast = Toast.makeText(context, text, duration);
