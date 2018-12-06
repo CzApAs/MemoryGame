@@ -2,7 +2,6 @@ package com.example.memorygame;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.view.Gravity;
 import android.widget.GridLayout;
 
 public class MemoryGameButton extends android.support.v7.widget.AppCompatButton {

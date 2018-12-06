@@ -110,36 +110,36 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
 
-        MemoryGameButton button = (MemoryGameButton) view;
+        MemoryGameButton pressedButton = (MemoryGameButton) view;
 
-        if(button.isMatched)
+        if(pressedButton.isMatched)
         {
             return;
         }
 
         if(firstSelectionButton == null) //first selection from a pair of images to compare
         {
-            firstSelectionButton = button;
+            firstSelectionButton = pressedButton;
             firstSelectionButton.flip();
             numberOfFlips++;
             return;
         }
 
-        if(firstSelectionButton.getId() == button.getId())
+        if(firstSelectionButton.getId() == pressedButton.getId())
         {
             return;
         }
 
-        if(firstSelectionButton.getFrontImage() == button.getFrontImage())
+        if(firstSelectionButton.getFrontImage() == pressedButton.getFrontImage())
         {
-            button.flip();
+            pressedButton.flip();
             numberOfFlips++;
 
             firstSelectionButton.setMatched(true);
-            button.setMatched(true);
+            pressedButton.setMatched(true);
 
             firstSelectionButton.setEnabled(false);
-            button.setEnabled(false);
+            pressedButton.setEnabled(false);
 
             firstSelectionButton = null;
             checkEndOfGame();
@@ -147,7 +147,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         else  // two images were chosen and did not match
         {
-            secondSelectionButton = button;
+            secondSelectionButton = pressedButton;
             secondSelectionButton.flip();
             numberOfFlips++;
             isBusy = true;
@@ -197,7 +197,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                         finish();
                     }
                 })
-                .setNegativeButton("Exit", new DialogInterface.OnClickListener() {
+                .setNegativeButton("Return with same images", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         finish();
