@@ -19,6 +19,10 @@ import java.util.List;
 public class GameActivity extends AppCompatActivity implements View.OnClickListener {
 
     private int numberOfElements;
+    private int numberOfRows;
+    private int numberOfColumns;
+
+    GridLayout gridLayout;
 
     private MemoryGameButton[] buttons;
 
@@ -28,6 +32,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     Drawable fourthImageDrawable;
     List<Drawable> randomImageLocations;
 
+    private MemoryGameButton pressedButton;
     private MemoryGameButton firstSelectionButton;
     private MemoryGameButton secondSelectionButton;
 
@@ -46,15 +51,23 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     protected void instantiateValues()
     {
         numberOfFlips=0;
-        GridLayout gridLayout = (GridLayout)(findViewById(R.id.grid_layout));
 
-        int numberOfRows = gridLayout.getRowCount();
-        int numberOfColumns = gridLayout.getColumnCount();
+        setupGridValues();
+        extractAndAssignDrawablesFromIntent();
+        assignShuffledRandomLocations();
+        createMemoryGameButtons();
+    }
 
+    protected void setupGridValues()
+    {
+        gridLayout = (GridLayout)(findViewById(R.id.grid_layout));
+        numberOfRows = gridLayout.getRowCount();
+        numberOfColumns = gridLayout.getColumnCount();
         numberOfElements = numberOfRows * numberOfColumns;
+    }
 
-        buttons = new MemoryGameButton[numberOfElements];
-
+    protected void extractAndAssignDrawablesFromIntent()
+    {
         Intent intent = getIntent();
         Bitmap firstImage = (Bitmap) intent.getParcelableExtra(MainActivity.EXTRA_BITMAP_1);
         firstImageDrawable = new BitmapDrawable(getResources(), firstImage);
@@ -64,23 +77,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         thirdImageDrawable = new BitmapDrawable(getResources(), thirdImage);
         Bitmap fourthImage = (Bitmap) intent.getParcelableExtra(MainActivity.EXTRA_BITMAP_4);
         fourthImageDrawable = new BitmapDrawable(getResources(), fourthImage);
-
-        randomImageLocations = new ArrayList<>();
-        assignShuffledRandomLocations();
-
-        for(int row=0; row<numberOfRows; row++) {
-            for (int column = 0; column < numberOfColumns; column++) {
-                MemoryGameButton newButton = new MemoryGameButton(this, row, column, randomImageLocations.get(row * numberOfColumns + column));
-                newButton.setId(View.generateViewId());
-                newButton.setOnClickListener(this);
-                buttons[row * numberOfColumns + column] = newButton;  //saving the generated buttons for possible future use
-                gridLayout.addView(newButton);
-            }
-        }
     }
 
     protected void assignShuffledRandomLocations()
     {
+        randomImageLocations = new ArrayList<>();
         for (int i = 0; i < numberOfElements; i++) {
             switch(i%numberOfElements/2){  // one image is present in two locations
                 case 0:
@@ -102,6 +103,21 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         Collections.shuffle(randomImageLocations);
     }
 
+    protected void createMemoryGameButtons()
+    {
+        buttons = new MemoryGameButton[numberOfElements];
+
+        for(int row=0; row<numberOfRows; row++) {
+            for (int column = 0; column < numberOfColumns; column++) {
+                MemoryGameButton newButton = new MemoryGameButton(this, row, column, randomImageLocations.get(row * numberOfColumns + column));
+                newButton.setId(View.generateViewId());
+                newButton.setOnClickListener(this);
+                buttons[row * numberOfColumns + column] = newButton;  //saving the generated buttons for possible future use
+                gridLayout.addView(newButton);
+            }
+        }
+    }
+
 
     @Override
     public void onClick(View view) {
@@ -110,7 +126,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
 
-        MemoryGameButton pressedButton = (MemoryGameButton) view;
+        pressedButton = (MemoryGameButton) view;
 
         if(pressedButton.isMatched)
         {
@@ -119,30 +135,21 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         if(firstSelectionButton == null) //first selection from a pair of images to compare
         {
-            firstSelectionButton = pressedButton;
-            firstSelectionButton.flip();
-            numberOfFlips++;
+            selectAndFlipFirstImage();
             return;
         }
 
-        if(firstSelectionButton.getId() == pressedButton.getId())
+        if(firstSelectionButton.getId() == pressedButton.getId()) //ignore attempt to select the same image
         {
             return;
         }
 
         if(firstSelectionButton.getFrontImage() == pressedButton.getFrontImage())
         {
-            pressedButton.flip();
-            numberOfFlips++;
-
-            firstSelectionButton.setMatched(true);
-            pressedButton.setMatched(true);
-
-            firstSelectionButton.setEnabled(false);
-            pressedButton.setEnabled(false);
+            matchBothImagesAndDisableTheirButtons();
 
             firstSelectionButton = null;
-            checkEndOfGame();
+            checkIfGameEnded();
         }
 
         else  // two images were chosen and did not match
@@ -150,24 +157,31 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             secondSelectionButton = pressedButton;
             secondSelectionButton.flip();
             numberOfFlips++;
-            isBusy = true;
 
-            final Handler handler = new Handler();
-
-            handler.postDelayed(new Runnable() {  // the player is shown both images before they are flipped back
-                @Override
-                public void run() {
-                    firstSelectionButton.flip();
-                    secondSelectionButton.flip();
-                    firstSelectionButton=null;
-                    secondSelectionButton=null;
-                    isBusy=false;
-                }
-            }, 500);
+            flipBothImagesAfterDelay();
         }
     }
 
-    private void checkEndOfGame()
+    private void selectAndFlipFirstImage()
+    {
+        firstSelectionButton = pressedButton;
+        firstSelectionButton.flip();
+        numberOfFlips++;
+    }
+
+    private void matchBothImagesAndDisableTheirButtons()
+    {
+        pressedButton.flip();
+        numberOfFlips++;
+
+        firstSelectionButton.setMatched(true);
+        pressedButton.setMatched(true);
+
+        firstSelectionButton.setEnabled(false);
+        pressedButton.setEnabled(false);
+    }
+
+    private void checkIfGameEnded()
     {
         if(checkIfAllMatched())
         {
@@ -206,4 +220,23 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
+
+    private void flipBothImagesAfterDelay()
+    {
+        isBusy=true;
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {  // the player is shown both images before they are flipped back
+            @Override
+            public void run() {
+                firstSelectionButton.flip();
+                secondSelectionButton.flip();
+                firstSelectionButton=null;
+                secondSelectionButton=null;
+                isBusy=false;
+            }
+        }, 500);
+    }
+
+
 }
