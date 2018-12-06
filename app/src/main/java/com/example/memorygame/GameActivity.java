@@ -82,7 +82,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     protected void assignShuffledRandomLocations()
     {
         for (int i = 0; i < numberOfElements; i++) {
-            switch(i%numberOfElements/2){
+            switch(i%numberOfElements/2){  // one image is present in two locations
                 case 0:
                     randomImageLocations.add(firstImageDrawable);
                     break;
