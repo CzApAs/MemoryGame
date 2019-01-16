@@ -51,7 +51,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     protected void instantiateValues()
     {
         numberOfFlips=0;
-
         setupGridValues();
         extractAndAssignDrawablesFromIntent();
         assignShuffledRandomLocations();
